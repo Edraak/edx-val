@@ -112,12 +112,12 @@ Subtitles
 SUBTITLE_DICT_SRT = dict(
     fmt="srt",
     language="en",
-    content="0:0:0\nhello"
+    content=b"0:0:0\nhello"
 )
 SUBTITLE_DICT_SJSON = dict(
     fmt="sjson",
     language="fr",
-    content='{"start": "00:00:00"}'
+    content=b'{"start": "00:00:00"}'
 )
 """
 Fish

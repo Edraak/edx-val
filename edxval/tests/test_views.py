@@ -782,7 +782,7 @@ class SubtitleDetailTest(APIAuthTestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.client.get(video_subtitles['content_url']).content, 'testing 123')
+        self.assertEqual(self.client.get(video_subtitles['content_url']).content, b'testing 123')
 
     def test_update_json_subtitle(self):
         """
@@ -810,7 +810,7 @@ class SubtitleDetailTest(APIAuthTestCase):
         response = self.client.put(
             url, video_subtitles, format='json'
         )
-        self.assertEqual(self.client.get(video_subtitles['content_url']).content, '{"start": "00:00:00"}')
+        self.assertEqual(self.client.get(video_subtitles['content_url']).content, b'{"start": "00:00:00"}')
 
 @ddt
 class VideoImagesViewTest(APIAuthTestCase):
@@ -882,7 +882,7 @@ class VideoImagesViewTest(APIAuthTestCase):
         },
         {
             'post_data': {'course_id': 'test_course_id', 'edx_video_id': 'super-soaker', 'generated_images': [1, 2, 3]},
-            'message': "[u'list must only contain strings.']"
+            'message': "'list must only contain strings.'"
         },
     )
     @unpack
@@ -894,7 +894,7 @@ class VideoImagesViewTest(APIAuthTestCase):
 
         response = self.client.post(url, post_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data['message'],
-            message
+        self.assertIn(
+            message,
+            response.data['message']
         )

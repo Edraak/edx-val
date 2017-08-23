@@ -23,7 +23,7 @@ from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, RegexValidator
 from django.core.urlresolvers import reverse
-from django.utils.six import python_2_unicode_compatible
+from django.utils.six import python_2_unicode_compatible, string_types
 
 from model_utils.models import TimeStampedModel
 
@@ -263,7 +263,7 @@ class ListField(models.TextField):
         if len(value) > LIST_MAX_ITEMS:
             raise ValidationError('list must not contain more than {} items.'.format(LIST_MAX_ITEMS))
 
-        if all(isinstance(item, basestring) for item in value) is False:
+        if all(isinstance(item, string_types) for item in value) is False:
             raise ValidationError('list must only contain strings.')
 
         return value

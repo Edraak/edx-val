@@ -451,7 +451,7 @@ class GetVideoForCourseProfiles(TestCase):
                         "url": encoding["url"],
                         "file_size": encoding["file_size"],
                     }
-                    for (profile_name, encoding) in encoding_dict.iteritems()
+                    for (profile_name, encoding) in encoding_dict.items()
                 }
             }
         }
@@ -1246,10 +1246,10 @@ class CourseVideoImageTest(TestCase):
         self.image_path1 = 'edxval/tests/data/image.jpg'
         self.image_path2 = 'edxval/tests/data/edx.jpg'
         self.image_url = api.update_video_image(
-            self.edx_video_id, self.course_id, ImageFile(open(self.image_path1)), 'image.jpg'
+            self.edx_video_id, self.course_id, ImageFile(open(self.image_path1, 'rb')), 'image.jpg'
         )
         self.image_url2 = api.update_video_image(
-            self.edx_video_id, self.course_id2, ImageFile(open(self.image_path2)), 'image.jpg'
+            self.edx_video_id, self.course_id2, ImageFile(open(self.image_path2, 'rb')), 'image.jpg'
         )
 
     def test_update_video_image(self):
@@ -1258,8 +1258,8 @@ class CourseVideoImageTest(TestCase):
         """
         self.assertEqual(self.course_video.video_image.image.name, self.image_url)
         self.assertEqual(self.course_video2.video_image.image.name, self.image_url2)
-        self.assertEqual(ImageFile(open(self.image_path1)).size, ImageFile(open(self.image_url)).size)
-        self.assertEqual(ImageFile(open(self.image_path2)).size, ImageFile(open(self.image_url2)).size)
+        self.assertEqual(ImageFile(open(self.image_path1, 'rb')).size, ImageFile(open(self.image_url, 'rb')).size)
+        self.assertEqual(ImageFile(open(self.image_path2, 'rb')).size, ImageFile(open(self.image_url2, 'rb')).size)
 
     def test_get_course_video_image_url(self):
         """
@@ -1282,7 +1282,7 @@ class CourseVideoImageTest(TestCase):
         """
         with self.assertNumQueries(6):
             api.update_video_image(
-                self.edx_video_id, self.course_id, ImageFile(open(self.image_path1)), 'image.jpg'
+                self.edx_video_id, self.course_id, ImageFile(open(self.image_path1, 'rb')), 'image.jpg'
             )
 
     def test_num_queries_get_course_video_image_url(self):
@@ -1316,7 +1316,7 @@ class CourseVideoImageTest(TestCase):
         Tests correct message is logged when save to storge is failed in `create_or_update`.
         """
         with self.assertRaises(Exception) as save_exception:  # pylint: disable=unused-variable
-            VideoImage.create_or_update(self.course_video, 'test.jpg', open(self.image_path2))
+            VideoImage.create_or_update(self.course_video, 'test.jpg', open(self.image_path2, 'rb'))
 
         mock_logger.exception.assert_called_with(
             'VAL: Video Image save failed to storage for course_id [%s] and video_id [%s]',
@@ -1331,10 +1331,10 @@ class CourseVideoImageTest(TestCase):
         does_not_course_id = 'does_not_exist'
 
         with self.assertRaises(Exception) as get_exception:
-            api.update_video_image(self.edx_video_id, does_not_course_id, open(self.image_path2), 'test.jpg')
+            api.update_video_image(self.edx_video_id, does_not_course_id, open(self.image_path2, 'rb'), 'test.jpg')
 
         self.assertEqual(
-            get_exception.exception.message,
+            str(get_exception.exception),
             'VAL: CourseVideo not found for edx_video_id: {0} and course_id: {1}'.format(
                 self.edx_video_id,
                 does_not_course_id
@@ -1345,7 +1345,7 @@ class CourseVideoImageTest(TestCase):
         """
         Test `VideoImage.generated_images` field works as expected.
         """
-        image_urls = ['video-images/a.png', 'video-images/b.png']
+        image_urls = [str('video-images/a.png'), str('video-images/b.png')]
 
         # an empty list should be returned when there is no value for urls
         self.assertEqual(self.course_video.video_image.generated_images, [])
@@ -1426,7 +1426,7 @@ class CourseVideoImageTest(TestCase):
 
         # This will replace the image for self.course_video and delete the existing image
         image_url = api.update_video_image(
-            self.edx_video_id, self.course_id, ImageFile(open(self.image_path2)), 'image.jpg'
+            self.edx_video_id, self.course_id, ImageFile(open(self.image_path2, 'rb')), 'image.jpg'
         )
 
         # Verify that new image is set to course_video
@@ -1435,7 +1435,7 @@ class CourseVideoImageTest(TestCase):
 
         # Verify that an exception is raised if we try to open a delete image file
         with self.assertRaises(IOError) as file_open_exception:
-            ImageFile(open(existing_image_name))
+            ImageFile(open(existing_image_name, 'rb'))
 
         self.assertEqual(file_open_exception.exception.strerror, 'No such file or directory')
 
@@ -1450,7 +1450,7 @@ class CourseVideoImageTest(TestCase):
 
         # This will replace the image for self.course_video but image will
         # not be deleted because it is also used by self.course_video2
-        api.update_video_image(self.edx_video_id, self.course_id, ImageFile(open(self.image_path2)), 'image.jpg')
+        api.update_video_image(self.edx_video_id, self.course_id, ImageFile(open(self.image_path2, 'rb')), 'image.jpg')
 
         # Verify image for course_video has changed
         course_video = CourseVideo.objects.get(video=self.video, course_id=self.course_id)
@@ -1460,4 +1460,4 @@ class CourseVideoImageTest(TestCase):
         self.assertEqual(self.course_video2.video_image.image.name, shared_image)
 
         # Open the shared image file to verify it is not deleted
-        ImageFile(open(shared_image))
+        ImageFile(open(shared_image, 'rb'))
