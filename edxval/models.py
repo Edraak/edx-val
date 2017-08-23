@@ -11,6 +11,7 @@ themselves. After these are resolved, errors such as a negative file_size or
 invalid profile_name will be returned.
 """
 
+from __future__ import unicode_literals
 from contextlib import closing
 import json
 import logging
@@ -214,7 +215,7 @@ class ListField(models.TextField):
         Converts a list to its json represetation to store in database as text.
         """
         if value and not isinstance(value, list):
-            raise ValidationError(u'ListField value {} is not a list.'.format(value))
+            raise ValidationError('ListField value {} is not a list.'.format(value))
         return json.dumps(self.validate(value) or [])
 
     def from_db_value(self, value, expression, connection, context):
@@ -242,7 +243,7 @@ class ListField(models.TextField):
 
                 self.validate(py_list)
             except (ValueError, TypeError):
-                raise ValidationError(u'Must be a valid list of strings.')
+                raise ValidationError('Must be a valid list of strings.')
 
         return py_list
 
@@ -260,10 +261,10 @@ class ListField(models.TextField):
             ValidationError
         """
         if len(value) > LIST_MAX_ITEMS:
-            raise ValidationError(u'list must not contain more than {} items.'.format(LIST_MAX_ITEMS))
+            raise ValidationError('list must not contain more than {} items.'.format(LIST_MAX_ITEMS))
 
         if all(isinstance(item, basestring) for item in value) is False:
-            raise ValidationError(u'list must only contain strings.')
+            raise ValidationError('list must only contain strings.')
 
         return value
 
